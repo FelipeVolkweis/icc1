@@ -207,21 +207,21 @@ int executa_comando(char *comando, inventario_t *inventario) {
         double preco;
 
         nome = scan_nome(nome);
-        scanf("%d %lf", &quantidade, &preco);
+        scanf("%d %lf ", &quantidade, &preco);
 
         insere_produto(nome, quantidade, preco, inventario);
 
     } else if(compara_comando(comando, "AE")) {
         int codigo;
         int quantidade;
-        scanf("%d %d", &codigo, &quantidade);
+        scanf("%d %d ", &codigo, &quantidade);
 
         aumenta_estoque(codigo, quantidade, inventario);
 
     } else if(compara_comando(comando, "MP")) {
         int codigo;
         double preco;
-        scanf("%d %lf", &codigo, &preco);
+        scanf("%d %lf ", &codigo, &preco);
 
         modifica_preco(codigo, preco, inventario);
 
