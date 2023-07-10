@@ -65,6 +65,8 @@ int executa_comando(char *comando, inventario_t *inventario);
 int compara_comando(char *input, char *comando);
 char *scan_nome(char *nome);
 void free_inventario(inventario_t *inventario);
+void grava_no_arquivo(inventario_t inventario);
+void le_arquivo(inventario_t *inventario);
 
 void insere_produto(char *nome, int quantidade, double preco, inventario_t *inventario) {
     produto_t produto;
@@ -97,15 +99,18 @@ codigos_venda_t scan_codigos_venda() {
     codigos = malloc(sizeof(int));
     codigos[tamanho] = codigo;
     tamanho++;
+
     while(1) {
         scanf("%d", &codigo);
+
         if(codigo < 0)
             break;
-        
+
         codigos = realloc(codigos, (tamanho + 1) * sizeof(int));
         codigos[tamanho] = codigo;
         tamanho++;
     }
+
     codigos_venda.tamanho = tamanho; 
     codigos_venda.codigos = codigos; 
     codigos_venda.quantidade_venda = codigo;
@@ -190,6 +195,23 @@ char *scan_nome(char *nome) {
     return nome;
 }
 
+char *scan_nome_arquivo(char *nome, FILE *arquivo) {
+    char c;
+    int tamanho = 0;
+    
+    while(((c = fgetc(arquivo)) != '\0') && c != ' ' && c != '\n' && c != EOF) {
+        tamanho++;
+        nome = realloc(nome, tamanho * sizeof(char));
+        nome[tamanho - 1] = c;
+    }
+    nome = realloc(nome, (tamanho + 1) * sizeof(char));
+
+    nome[tamanho] = '\0';
+    //printf("comando: %s ( %d, %d, %d )[%d]\n", nome, nome[0], nome[1], nome[2], tamanho);
+
+    return nome;
+}
+
 void free_inventario(inventario_t *inventario) {
     for(int i = 0; i < inventario->tamanho; i++) {
         free(inventario->produtos[i].nome);
@@ -243,23 +265,63 @@ int executa_comando(char *comando, inventario_t *inventario) {
         consulta_saldo(*inventario);
 
     } else if(compara_comando(comando, "FE")) {
+        grava_no_arquivo(*inventario);
+
         return finaliza_execucao();
     }
     return 1;
 }
 
+void grava_no_arquivo(inventario_t inventario) {
+    FILE *arquivo = fopen("inventario.txt", "w");
+
+    fprintf(arquivo, "%d\n", inventario.tamanho);
+
+    for(int i = 0; i < inventario.tamanho; i++) {
+        fprintf(arquivo, "%d %s %d %lf\n", 
+            inventario.produtos[i].codigo,
+            inventario.produtos[i].nome,
+            inventario.produtos[i].quantidade,
+            inventario.produtos[i].preco);
+    }
+
+    fclose(arquivo);
+}
+
+void le_arquivo(inventario_t *inventario) {
+    FILE *arquivo = fopen("inventario.txt", "r");
+    if(arquivo == NULL)
+        return;
+
+    fscanf(arquivo, "%d", &(*inventario).tamanho);
+
+    (*inventario).produtos = malloc(sizeof(produto_t) * inventario->tamanho);
+
+    for(int i = 0; i < (*inventario).tamanho; i++) {
+        fscanf(arquivo, "%d ", &(*inventario).produtos[i].codigo);
+        (*inventario).produtos[i].nome = scan_nome_arquivo((*inventario).produtos[i].nome, arquivo);
+        fscanf(arquivo, "%d %lf ", 
+            &(*inventario).produtos[i].quantidade,
+            &(*inventario).produtos[i].preco);
+    }
+
+    fclose(arquivo);
+}
+
 int main() {
     char *comando = NULL;
-    int loop = 1;
+    int usuario_mandou_fechar = 1;
 
     inventario_t inventario;
     inventario.produtos = NULL;
     inventario.saldo = SALDO_INICIAL;
     inventario.tamanho = 0;
 
-    while(loop) {
+    le_arquivo(&inventario);
+
+    while(usuario_mandou_fechar) {
         comando = scan_nome(comando);
-        loop = executa_comando(comando, &inventario);
+        usuario_mandou_fechar = executa_comando(comando, &inventario);
 
         free(comando);
         comando = NULL;
