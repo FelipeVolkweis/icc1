@@ -19,13 +19,14 @@ CS
 
 Finaliza a execução
 FE
+
+valgrind --leak-check=yes
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #define LINHA "--------------------------------------------------"
-#define SALDO_INICIAL 100
 
 typedef struct {
     int codigo;
@@ -100,16 +101,15 @@ codigos_venda_t scan_codigos_venda() {
     codigos[tamanho] = codigo;
     tamanho++;
 
-    while(1) {
+    do {
         scanf("%d", &codigo);
 
-        if(codigo < 0)
-            break;
-
-        codigos = realloc(codigos, (tamanho + 1) * sizeof(int));
-        codigos[tamanho] = codigo;
-        tamanho++;
-    }
+        if(codigo >= 0) {
+            codigos = realloc(codigos, (tamanho + 1) * sizeof(int));
+            codigos[tamanho] = codigo;
+            tamanho++;
+        }
+    } while(codigo >= 0); 
 
     codigos_venda.tamanho = tamanho; 
     codigos_venda.codigos = codigos; 
@@ -122,23 +122,28 @@ venda_t venda(int *codigos, int tamanho_codigos, int quantidade_vendidos, invent
     produto_t *produtos = NULL;
     venda_t venda;
     venda.total = 0;
-    venda.tamanho = tamanho_codigos;
+    venda.tamanho = 0;
 
     for(int i = 0; i < tamanho_codigos; i++) {
         int index = codigos[i];
         produto_t *produto_atual = &inventario->produtos[index];
-        produto_atual->quantidade += quantidade_vendidos;
 
-        produto_t produto;
-        produto.codigo = produto_atual->codigo;
-        produto.nome = produto_atual->nome;
-        produto.preco = produto_atual->preco;
-        produto.quantidade = quantidade_vendidos * -1; 
+        if(produto_atual->quantidade > 0) {
+            venda.tamanho++;
+            
+            produto_atual->quantidade += quantidade_vendidos;
 
-        produtos = realloc(produtos, (i + 1) * sizeof(produto_t));
-        produtos[i] = produto;
+            produto_t produto;
+            produto.codigo = produto_atual->codigo;
+            produto.nome = produto_atual->nome;
+            produto.preco = produto_atual->preco;
+            produto.quantidade = quantidade_vendidos * -1; 
 
-        venda.total += produto.quantidade * produto.preco;
+            produtos = realloc(produtos, (venda.tamanho) * sizeof(produto_t));
+            produtos[venda.tamanho - 1] = produto;
+
+            venda.total += produto.quantidade * produto.preco;
+        }
     }
     venda.produtos = produtos;
 
@@ -311,13 +316,14 @@ void le_arquivo(inventario_t *inventario) {
 int main() {
     char *comando = NULL;
     int usuario_mandou_fechar = 1;
+    int tamanho;
 
     inventario_t inventario;
     inventario.produtos = NULL;
-    inventario.saldo = SALDO_INICIAL;
     inventario.tamanho = 0;
+    scanf("%d %lf ", &tamanho, &inventario.saldo);
 
-    le_arquivo(&inventario);
+    //le_arquivo(&inventario);
 
     while(usuario_mandou_fechar) {
         comando = scan_nome(comando);
