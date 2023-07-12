@@ -281,9 +281,10 @@ void grava_no_arquivo(inventario_t inventario) {
     FILE *arquivo = fopen("inventario.txt", "w");
 
     fprintf(arquivo, "%d\n", inventario.tamanho);
+    fprintf(arquivo, "%.2lf\n", inventario.saldo);
 
     for(int i = 0; i < inventario.tamanho; i++) {
-        fprintf(arquivo, "%d %s %d %lf\n", 
+        fprintf(arquivo, "%d %s %d %.2lf\n", 
             inventario.produtos[i].codigo,
             inventario.produtos[i].nome,
             inventario.produtos[i].quantidade,
@@ -299,6 +300,7 @@ void le_arquivo(inventario_t *inventario) {
         return;
 
     fscanf(arquivo, "%d", &(*inventario).tamanho);
+    fscanf(arquivo, "%lf", &(*inventario).saldo);
 
     (*inventario).produtos = malloc(sizeof(produto_t) * inventario->tamanho);
 
@@ -323,7 +325,7 @@ int main() {
     inventario.tamanho = 0;
     scanf("%d %lf ", &tamanho, &inventario.saldo);
 
-    //le_arquivo(&inventario);
+    le_arquivo(&inventario);
 
     while(usuario_mandou_fechar) {
         comando = scan_nome(comando);
