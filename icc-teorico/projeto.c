@@ -77,11 +77,12 @@ void grava_no_arquivo(inventario_t inventario);
 void le_arquivo(inventario_t *inventario);
 
 /* 
-Funcao é responsável por adicionar um novo produto, dado pelo usuário, ao inventário. 
-Parametro de Entrada:  nome - nome do produto
+Função é responsável por adicionar um novo produto, dado pelo usuário, ao inventário. 
+Parâmetro de Entrada:  nome - nome do produto
                        quantidade - quantos deste tipo serão adicionados ao estoque
                        preco - preço do produto
-                       inventario -representar um inventário de produtos      
+                       inventario -representar um inventário de produtos  
+Parâmetro de Saída: nenhum
 */
 void insere_produto(char *nome, int quantidade, double preco, inventario_t *inventario) {
     produto_t produto;
@@ -98,30 +99,32 @@ void insere_produto(char *nome, int quantidade, double preco, inventario_t *inve
 }
 
 /* 
-Funcao tilizada para aumentar a quantidade em estoque de um produto específico.
-Parametro de Entrada:  codigo - código do produto a ser modificado
+Função utilizada para aumentar a quantidade em estoque de um produto específico.
+Parâmetro de Entrada:  codigo - código do produto a ser modificado
                        quantidade - quantos deste tipo serão adicionados ao estoque
-                       inventario -representar um inventário de produtos      
+                       inventario -representar um inventário de produtos    
+Parâmetro de Saída: nenhum  
 */
 void aumenta_estoque(int codigo, int quantidade, inventario_t *inventario) {
     inventario->produtos[codigo].quantidade += quantidade;
 }
 
 /* 
-Funcao que permite alterar o preço de um produto específico. 
-Parametro de Entrada:  codigo - código do produto a ser modificado
+Função que permite alterar o preço de um produto específico. 
+Parâmetro de Entrada: codigo - código do produto a ser modificado
                        preco - novo preço do produto
-                       inventario -representar um inventário de produtos      
+                       inventario -representar um inventário de produtos  
+Parâmetro de Saída: nenhum    
 */
 void modifica_preco(int codigo, double preco, inventario_t *inventario) {
     inventario->produtos[codigo].preco = preco;
 }
 
 /* 
-Funcao que lê uma sequência de códigos de produtos a serem vendidos. 
+Função que lê uma sequência de códigos de produtos a serem vendidos. 
 Os códigos são lidos do teclado até que um valor negativo seja inserido.
-Parametro de Entrada:  nenhum      
-Parametros de Saída:  codigos_venda_t - contém a lista de códigos, o tamanho da lista e a quantidade vendida
+Parâmetro de Entrada:  nenhum      
+Parâmetros de Saída:  codigos_venda_t - contém a lista de códigos, o tamanho da lista e a quantidade vendida
 */
 
 codigos_venda_t scan_codigos_venda() {
@@ -153,11 +156,12 @@ codigos_venda_t scan_codigos_venda() {
 }
 
 /* 
-Funcao que realiza a venda dos produtos com base nos códigos fornecidos.
+Função que realiza a venda dos produtos com base nos códigos fornecidos.
 Parametro de entrada:  codigos - códigos de todos os produtos
                        tamanho_codigos - tamanho do vetor de codigos
                        quantidade_vendidos - quantos produtos foram vendidos
                        inventario -representar um inventário de produtos
+Parâmetro de Saída:  venda - guarda os dados relevantes de uma venda
 */
 
 venda_t venda(int *codigos, int tamanho_codigos, int quantidade_vendidos, inventario_t *inventario) {
@@ -195,9 +199,10 @@ venda_t venda(int *codigos, int tamanho_codigos, int quantidade_vendidos, invent
 }
 
 /* 
-Funcao que imprime os detalhes de uma venda na tela, incluindo o nome,
+Função que imprime os detalhes de uma venda na tela, incluindo o nome,
 o preço de cada produto vendido e o total da venda.
-Parametro de entrada:  venda - 
+Parametro de entrada:  venda - guarda os dados relevantes de uma venda 
+Parametro de Sáida:  nenhum
 */
 
 void mostra_venda(venda_t venda) {
@@ -209,9 +214,10 @@ void mostra_venda(venda_t venda) {
 }
 
 /* 
-Funcao que exibe as informações do inventário na tela, mostrando o código,
+Função que exibe as informações do inventário na tela, mostrando o código,
 o nome e a quantidade de cada produto em estoque.
-Parametro de Sáida:  inventario -representar um inventário de produtos  
+Parâmetro de Entrada:  inventario - representar um inventário de produtos  
+Parâmetro de Saída: nenhum
 */
 
 void consulta_estoque(inventario_t inventario) {
@@ -225,18 +231,19 @@ void consulta_estoque(inventario_t inventario) {
 }
 
 /* 
-Funcao exibe o saldo atual do inventário na tela.
-Parametro de Sáida:  inventario -representar um inventário de produtos  
+Função exibe o saldo atual do inventário na tela.
+Parâmetro de Entrada:  inventario -representar um inventário de produtos 
+Parâmetro de Saída: nenhum
 */
-
 void consulta_saldo(inventario_t inventario) {
     printf("Saldo: %.2lf\n", inventario.saldo);
     printf("%s\n", LINHA);
 }
 
 /* 
-Funcao é utilizada para encerrar a execução do programa
-Parametro de Sáida:  0 - para indicar que o programa deve ser finalizado
+Função é utilizada para encerrar a execução do programa
+Parâmetro de Entrada:  nenhum
+Parâmetro de Saída:  0 - para indicar que o programa deve ser finalizado
 */
 
 int finaliza_execucao() {
@@ -244,7 +251,11 @@ int finaliza_execucao() {
 }
 
 /* 
-Funcao é responsável por comparar se dois comandos são iguais. 
+Função é responsável por comparar se dois comandos são iguais. 
+Parâmetro de Entrada:  input - comando digitado pelo usuário
+                       comando - comando a ser comparado
+Parâmetro de Saída: 1 - se os comandos forem iguais
+                    0 - se os comandos forem diferentes
 */
 
 int compara_comando(char *input, char *comando) {
@@ -254,7 +265,8 @@ int compara_comando(char *input, char *comando) {
 /* 
 Função é responsável por ler uma sequência de caracteres do teclado e 
 armazená-la em um array de caracteres (string).
-Parametro de Entrada:  nome - nome digitado pelo usuário
+Parâmetro de Entrada:  nome - nome digitado pelo usuário
+Parâmetro de Saída:  nome - nome digitado realocado dinamicamente para o tamanho correto
 */
 
 char *scan_nome(char *nome) {
@@ -278,6 +290,7 @@ Função é semelhante à função "scan_nome", porém ela
 lê uma sequência de caracteres de um arquivo em vez de ler do teclado.
 Parametro de Entrada:  nome - nome digitado pelo usuário
                        arquivo - aquivo que ira armazenar os dados
+Parâmetro de Saída:  nome - nome digitado realocado dinamicamente para o tamanho correto
 */
 
 char *scan_nome_arquivo(char *nome, FILE *arquivo) {
@@ -296,8 +309,9 @@ char *scan_nome_arquivo(char *nome, FILE *arquivo) {
     return nome;
 }
 /* 
-Funcao que desaloca o vetor do inventário
-Parametro de Entrada:  inventario -representar um inventário de produtos       
+Função que desaloca o vetor do inventário
+Parâmetro de Entrada:  inventario - representar um inventário de produtos
+Parâmetro de Saída: nenhum    
 */
 void free_inventario(inventario_t *inventario) {
     for(int i = 0; i < inventario->tamanho; i++) {
@@ -310,10 +324,12 @@ void free_inventario(inventario_t *inventario) {
 }
 
 /* 
-Funcao que recebe um comando fornecido pelo usuário e chama a função 
+Função que recebe um comando fornecido pelo usuário e chama a função 
 correspondente para executar a funcionalidade desejada. 
-Parametro de Entrada:  comando - Comando/entrada digitado pelo usuário
-                       inventario -representar um inventário de produtos      
+Parametro de Entrada:  comando - comando/entrada digitado pelo usuário
+                       inventario - representar um inventário de produtos  
+Parâmetro de Saída:  1 - para indicar que o programa deve continuar a execução
+                    0 - para indicar que o programa deve ser finalizado    
 */
 int executa_comando(char *comando, inventario_t *inventario) {    
     if(compara_comando(comando, "IP")) {
@@ -365,8 +381,9 @@ int executa_comando(char *comando, inventario_t *inventario) {
     return 1;
 }
 /* 
-Funcao que grava as informações coletadas dentro de um .txt
-Parametro de Entrada:  inventario -       
+Função que grava as informações coletadas dentro de um .txt
+Parâmetro de Entrada:  inventario -  representar um inventário de produtos 
+Parâmetro de Saída: nenhum
 */
 void grava_no_arquivo(inventario_t inventario) {
     FILE *arquivo = fopen(NOME_ARQUIVO, "w");
@@ -385,9 +402,10 @@ void grava_no_arquivo(inventario_t inventario) {
     fclose(arquivo);
 }
 /* 
-Funcao que lê as informações do inventário a partir de um 
+Função que lê as informações do inventário a partir de um 
 arquivo .txt e atualiza o inventário com os dados lidos.
-Parametro de Entrada:  inventario -representar um inventário de produtos       
+Parâmetro de Entrada:  inventario - representar um inventário de produtos   
+Parâmetro de Saída: nenhum    
 */
 void le_arquivo(inventario_t *inventario) {
     FILE *arquivo = fopen(NOME_ARQUIVO, "r");
@@ -411,7 +429,7 @@ void le_arquivo(inventario_t *inventario) {
     fclose(arquivo);
 }
 
-/* Programa Principal */
+/* Programa Principal - nele irá se chamar as outras funções do programa*/
 int main() {
     char *comando = NULL;   // Comando lido
     int usuario_mandou_fechar = 1;  // Flag utilizada para a execução do loop
@@ -435,10 +453,12 @@ int main() {
     while(usuario_mandou_fechar) {
         comando = scan_nome(comando);
         usuario_mandou_fechar = executa_comando(comando, &inventario);
-
+        // Desaloca o comando
         free(comando);
         comando = NULL;
     }
+
+    // Desaloca o inventário
 
     free_inventario(&inventario);
 
