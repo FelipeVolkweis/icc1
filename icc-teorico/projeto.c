@@ -12,6 +12,7 @@ Autores: Ayrton da Costa Ganem Filho, Felipe Volkweis de Oliveira e Matheus Paiv
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define LINHA "--------------------------------------------------" // Separação entre as linhas de saída
 #define NOME_ARQUIVO "inventario.txt"
@@ -70,6 +71,7 @@ int finaliza_execucao();
 int executa_comando(char *comando, inventario_t *inventario);
 int compara_comando(char *input, char *comando);
 char *scan_nome(char *nome);
+char *scan_nome_arquivo(char *nome, FILE *arquivo);
 void free_inventario(inventario_t *inventario);
 void grava_no_arquivo(inventario_t inventario);
 void le_arquivo(inventario_t *inventario);
@@ -153,7 +155,7 @@ codigos_venda_t scan_codigos_venda() {
 /* 
 Funcao que realiza a venda dos produtos com base nos códigos fornecidos.
 Parametro de entrada:  codigos - códigos de todos os produtos
-                       tamanho_codigos - 
+                       tamanho_codigos - tamanho do vetor de codigos
                        quantidade_vendidos - quantos produtos foram vendidos
                        inventario -representar um inventário de produtos
 */
@@ -415,19 +417,19 @@ int main() {
     int usuario_mandou_fechar = 1;  // Flag utilizada para a execução do loop
     int tamanho;    // Tamanho do estoque
 
-    FILE *arquivo = NULL;
+    FILE *arquivo = NULL;   // Ponteiro para file para checar se existe o inventário do dia anterior
 
     inventario_t inventario;
     inventario.produtos = NULL;
     inventario.tamanho = 0;
 
+    // Checa se existe o inventário do dia anterior
     if((arquivo = fopen(NOME_ARQUIVO, "r")) == NULL) {
         scanf("%d %lf ", &tamanho, &inventario.saldo);
     } else {
         fclose(arquivo);
         le_arquivo(&inventario);
     }
-
 
     // Loop de execução dos comandos digitados pelo usuário (até digitar FE)
     while(usuario_mandou_fechar) {
