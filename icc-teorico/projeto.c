@@ -1,32 +1,24 @@
-/*
-Insere produto
-IP_<nome>_<quantidade>_<preço>
+/* 
+O programa é um sistema de gerenciamento de inventário que 
+permite ao usuário adicionar, vender e consultar produtos. 
+Ele mantém registros dos produtos, quantidades, preços e saldo 
+do inventário. O usuário pode executar diversas operações, como 
+adicionar produtos, aumentar o estoque, modificar preços, realizar 
+vendas e consultar o estoque e saldo. Os dados do inventário podem 
+ser salvos e carregados de um arquivo de texto. 
 
-Aumenta estoque
-AE_<código>_<quantidade>
-
-Modifica preço
-MP_<código>_<preço>
-
-Venda
-VE_<código>_<código>_..._<código>_<-1>
-
-Consulta estoque
-CE
-
-Consulta saldo
-CS
-
-Finaliza a execução
-FE
-
-valgrind --leak-check=yes
+Autores: Ayrton da Costa Ganem Filho, Felipe Volkweis de Oliveira e Matheus Paiva Angarola  (2023)
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#define LINHA "--------------------------------------------------"
+#define LINHA "--------------------------------------------------" // Separação entre as linhas de saída
+#define NOME_ARQUIVO "inventario.txt"
+
+/* Struct que representa um produto específico, 
+com seus respectivos atributos, como código, nome, 
+preço e quantidade.*/
 
 typedef struct {
     int codigo;
@@ -35,11 +27,19 @@ typedef struct {
     int quantidade;
 } produto_t;
 
+/* Essa struct representa o inventário como um todo, 
+contendo a lista de produtos, o tamanho do inventário e 
+o saldo total.*/
+
 typedef struct {
     produto_t *produtos;
     int tamanho;
     double saldo;
 } inventario_t;
+
+/* Essa struct é utilizada para representar uma venda específica, 
+armazenando os produtos vendidos, o valor total da venda e o número 
+de produtos vendidos.*/
 
 typedef struct {
     produto_t *produtos;
@@ -47,12 +47,17 @@ typedef struct {
     int tamanho;
 } venda_t;
 
+/* Essas structs são utilizadas no programa para representar e 
+manipular os dados relacionados aos produtos, inventário e vendas. */
+
 typedef struct {
     int tamanho;
     int *codigos;
     int quantidade_venda;
 } codigos_venda_t;
 
+
+/* Protótipos de funções */
 void insere_produto(char *nome, int quantidade, double preco, inventario_t *inventario);
 void aumenta_estoque(int codigo, int quantidade, inventario_t *inventario);
 void modifica_preco(int codigo, double preco, inventario_t *inventario);
@@ -69,6 +74,13 @@ void free_inventario(inventario_t *inventario);
 void grava_no_arquivo(inventario_t inventario);
 void le_arquivo(inventario_t *inventario);
 
+/* 
+Funcao é responsável por adicionar um novo produto, dado pelo usuário, ao inventário. 
+Parametro de Entrada:  nome - nome do produto
+                       quantidade - quantos deste tipo serão adicionados ao estoque
+                       preco - preço do produto
+                       inventario -representar um inventário de produtos      
+*/
 void insere_produto(char *nome, int quantidade, double preco, inventario_t *inventario) {
     produto_t produto;
     produto.codigo = inventario->tamanho;
@@ -78,17 +90,37 @@ void insere_produto(char *nome, int quantidade, double preco, inventario_t *inve
 
     inventario->tamanho++;
 
+    // Alocação dinâmica de memória para armazenar o produto no inventário
     inventario->produtos = realloc(inventario->produtos, inventario->tamanho * sizeof(produto_t)); 
     inventario->produtos[inventario->tamanho - 1] = produto;
 }
 
+/* 
+Funcao tilizada para aumentar a quantidade em estoque de um produto específico.
+Parametro de Entrada:  codigo - código do produto a ser modificado
+                       quantidade - quantos deste tipo serão adicionados ao estoque
+                       inventario -representar um inventário de produtos      
+*/
 void aumenta_estoque(int codigo, int quantidade, inventario_t *inventario) {
     inventario->produtos[codigo].quantidade += quantidade;
 }
 
+/* 
+Funcao que permite alterar o preço de um produto específico. 
+Parametro de Entrada:  codigo - código do produto a ser modificado
+                       preco - novo preço do produto
+                       inventario -representar um inventário de produtos      
+*/
 void modifica_preco(int codigo, double preco, inventario_t *inventario) {
     inventario->produtos[codigo].preco = preco;
 }
+
+/* 
+Funcao que lê uma sequência de códigos de produtos a serem vendidos. 
+Os códigos são lidos do teclado até que um valor negativo seja inserido.
+Parametro de Entrada:  nenhum      
+Parametros de Saída:  codigos_venda_t - contém a lista de códigos, o tamanho da lista e a quantidade vendida
+*/
 
 codigos_venda_t scan_codigos_venda() {
     int *codigos = NULL;
@@ -117,6 +149,14 @@ codigos_venda_t scan_codigos_venda() {
 
     return codigos_venda;
 }
+
+/* 
+Funcao que realiza a venda dos produtos com base nos códigos fornecidos.
+Parametro de entrada:  codigos - códigos de todos os produtos
+                       tamanho_codigos - 
+                       quantidade_vendidos - quantos produtos foram vendidos
+                       inventario -representar um inventário de produtos
+*/
 
 venda_t venda(int *codigos, int tamanho_codigos, int quantidade_vendidos, inventario_t *inventario) {
     produto_t *produtos = NULL;
@@ -152,6 +192,12 @@ venda_t venda(int *codigos, int tamanho_codigos, int quantidade_vendidos, invent
     return venda;
 }
 
+/* 
+Funcao que imprime os detalhes de uma venda na tela, incluindo o nome,
+o preço de cada produto vendido e o total da venda.
+Parametro de entrada:  venda - 
+*/
+
 void mostra_venda(venda_t venda) {
     for(int i = 0; i < venda.tamanho; i++) {
         printf("%s %.2lf\n", venda.produtos[i].nome, venda.produtos[i].preco);
@@ -159,6 +205,12 @@ void mostra_venda(venda_t venda) {
     printf("Total: %.2lf\n", venda.total);
     printf("%s\n", LINHA);
 }
+
+/* 
+Funcao que exibe as informações do inventário na tela, mostrando o código,
+o nome e a quantidade de cada produto em estoque.
+Parametro de Sáida:  inventario -representar um inventário de produtos  
+*/
 
 void consulta_estoque(inventario_t inventario) {
     for(int i = 0; i < inventario.tamanho; i++) {
@@ -170,18 +222,38 @@ void consulta_estoque(inventario_t inventario) {
     printf("%s\n", LINHA);
 }
 
+/* 
+Funcao exibe o saldo atual do inventário na tela.
+Parametro de Sáida:  inventario -representar um inventário de produtos  
+*/
+
 void consulta_saldo(inventario_t inventario) {
     printf("Saldo: %.2lf\n", inventario.saldo);
     printf("%s\n", LINHA);
 }
 
+/* 
+Funcao é utilizada para encerrar a execução do programa
+Parametro de Sáida:  0 - para indicar que o programa deve ser finalizado
+*/
+
 int finaliza_execucao() {
     return 0;
 }
 
+/* 
+Funcao é responsável por comparar se dois comandos são iguais. 
+*/
+
 int compara_comando(char *input, char *comando) {
     return input[0] == comando[0] && input[1] == comando[1];
 }
+
+/* 
+Função é responsável por ler uma sequência de caracteres do teclado e 
+armazená-la em um array de caracteres (string).
+Parametro de Entrada:  nome - nome digitado pelo usuário
+*/
 
 char *scan_nome(char *nome) {
     char c;
@@ -195,10 +267,16 @@ char *scan_nome(char *nome) {
     nome = realloc(nome, (tamanho + 1) * sizeof(char));
 
     nome[tamanho] = '\0';
-    //printf("comando: %s ( %d, %d, %d )[%d]\n", nome, nome[0], nome[1], nome[2], tamanho);
 
     return nome;
 }
+
+/* 
+Função é semelhante à função "scan_nome", porém ela 
+lê uma sequência de caracteres de um arquivo em vez de ler do teclado.
+Parametro de Entrada:  nome - nome digitado pelo usuário
+                       arquivo - aquivo que ira armazenar os dados
+*/
 
 char *scan_nome_arquivo(char *nome, FILE *arquivo) {
     char c;
@@ -212,11 +290,13 @@ char *scan_nome_arquivo(char *nome, FILE *arquivo) {
     nome = realloc(nome, (tamanho + 1) * sizeof(char));
 
     nome[tamanho] = '\0';
-    //printf("comando: %s ( %d, %d, %d )[%d]\n", nome, nome[0], nome[1], nome[2], tamanho);
 
     return nome;
 }
-
+/* 
+Funcao que desaloca o vetor do inventário
+Parametro de Entrada:  inventario -representar um inventário de produtos       
+*/
 void free_inventario(inventario_t *inventario) {
     for(int i = 0; i < inventario->tamanho; i++) {
         free(inventario->produtos[i].nome);
@@ -227,6 +307,12 @@ void free_inventario(inventario_t *inventario) {
     inventario->produtos = NULL;
 }
 
+/* 
+Funcao que recebe um comando fornecido pelo usuário e chama a função 
+correspondente para executar a funcionalidade desejada. 
+Parametro de Entrada:  comando - Comando/entrada digitado pelo usuário
+                       inventario -representar um inventário de produtos      
+*/
 int executa_comando(char *comando, inventario_t *inventario) {    
     if(compara_comando(comando, "IP")) {
         char *nome = NULL;
@@ -238,21 +324,21 @@ int executa_comando(char *comando, inventario_t *inventario) {
 
         insere_produto(nome, quantidade, preco, inventario);
 
-    } else if(compara_comando(comando, "AE")) {
+    } else if(compara_comando(comando, "AE")) { /* Aumenta estoque: AE_<código>_<quantidade> */
         int codigo;
         int quantidade;
         scanf("%d %d ", &codigo, &quantidade);
 
         aumenta_estoque(codigo, quantidade, inventario);
 
-    } else if(compara_comando(comando, "MP")) {
+    } else if(compara_comando(comando, "MP")) { /* Modifica preço: MP_<código>_<preço> */
         int codigo;
         double preco;
         scanf("%d %lf ", &codigo, &preco);
 
         modifica_preco(codigo, preco, inventario);
 
-    } else if(compara_comando(comando, "VE")) {
+    } else if(compara_comando(comando, "VE")) { /* Venda: VE_<código>_<código>_..._<código>_<-1> */
         codigos_venda_t codigos_venda = scan_codigos_venda();
         venda_t venda_ = venda(codigos_venda.codigos, codigos_venda.tamanho, codigos_venda.quantidade_venda, inventario);
         mostra_venda(venda_);
@@ -263,22 +349,25 @@ int executa_comando(char *comando, inventario_t *inventario) {
         free(venda_.produtos);
         venda_.produtos = NULL;
 
-    } else if(compara_comando(comando, "CE")) {
+    } else if(compara_comando(comando, "CE")) { /* Consulta estoque */
         consulta_estoque(*inventario);
 
-    } else if(compara_comando(comando, "CS")) {
+    } else if(compara_comando(comando, "CS")) { /* Consulta saldo */
         consulta_saldo(*inventario);
 
-    } else if(compara_comando(comando, "FE")) {
+    } else if(compara_comando(comando, "FE")) { /* Finaliza a execução */
         grava_no_arquivo(*inventario);
 
         return finaliza_execucao();
     }
     return 1;
 }
-
+/* 
+Funcao que grava as informações coletadas dentro de um .txt
+Parametro de Entrada:  inventario -       
+*/
 void grava_no_arquivo(inventario_t inventario) {
-    FILE *arquivo = fopen("inventario.txt", "w");
+    FILE *arquivo = fopen(NOME_ARQUIVO, "w");
 
     fprintf(arquivo, "%d\n", inventario.tamanho);
     fprintf(arquivo, "%.2lf\n", inventario.saldo);
@@ -293,9 +382,13 @@ void grava_no_arquivo(inventario_t inventario) {
 
     fclose(arquivo);
 }
-
+/* 
+Funcao que lê as informações do inventário a partir de um 
+arquivo .txt e atualiza o inventário com os dados lidos.
+Parametro de Entrada:  inventario -representar um inventário de produtos       
+*/
 void le_arquivo(inventario_t *inventario) {
-    FILE *arquivo = fopen("inventario.txt", "r");
+    FILE *arquivo = fopen(NOME_ARQUIVO, "r");
     if(arquivo == NULL)
         return;
 
@@ -305,6 +398,7 @@ void le_arquivo(inventario_t *inventario) {
     (*inventario).produtos = malloc(sizeof(produto_t) * inventario->tamanho);
 
     for(int i = 0; i < (*inventario).tamanho; i++) {
+        (*inventario).produtos[i].nome = NULL;
         fscanf(arquivo, "%d ", &(*inventario).produtos[i].codigo);
         (*inventario).produtos[i].nome = scan_nome_arquivo((*inventario).produtos[i].nome, arquivo);
         fscanf(arquivo, "%d %lf ", 
@@ -315,18 +409,27 @@ void le_arquivo(inventario_t *inventario) {
     fclose(arquivo);
 }
 
+/* Programa Principal */
 int main() {
-    char *comando = NULL;
-    int usuario_mandou_fechar = 1;
-    int tamanho;
+    char *comando = NULL;   // Comando lido
+    int usuario_mandou_fechar = 1;  // Flag utilizada para a execução do loop
+    int tamanho;    // Tamanho do estoque
+
+    FILE *arquivo = NULL;
 
     inventario_t inventario;
     inventario.produtos = NULL;
     inventario.tamanho = 0;
-    scanf("%d %lf ", &tamanho, &inventario.saldo);
 
-    le_arquivo(&inventario);
+    if((arquivo = fopen(NOME_ARQUIVO, "r")) == NULL) {
+        scanf("%d %lf ", &tamanho, &inventario.saldo);
+    } else {
+        fclose(arquivo);
+        le_arquivo(&inventario);
+    }
 
+
+    // Loop de execução dos comandos digitados pelo usuário (até digitar FE)
     while(usuario_mandou_fechar) {
         comando = scan_nome(comando);
         usuario_mandou_fechar = executa_comando(comando, &inventario);
